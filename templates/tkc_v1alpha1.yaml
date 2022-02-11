@@ -1,0 +1,16 @@
+apiVersion: run.tanzu.vmware.com/v1alpha1      #TKGS API endpoint
+kind: TanzuKubernetesCluster                   #required parameter
+metadata:
+  name: CLUSTER_NAME                           #cluster name, user defined
+spec:
+  distribution:
+    fullVersion: v1.21.6---vmware.1-tkg.1.b3d708a
+  topology:
+    controlPlane:
+      count: 1                                 #number of control plane nodes
+      class: best-effort-small                #vmclass for control plane nodes
+      storageClass: ssd         #storageclass for control plane
+    workers:
+      count: 1                                 #number of worker nodes
+      class: best-effort-small                #vmclass for worker nodes
+      storageClass: ssd         #storageclass for worker nodes
