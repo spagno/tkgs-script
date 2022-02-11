@@ -81,7 +81,7 @@ EXTENSIONS_LIST="contour external-dns fluent-bit prometheus grafana"
 #EXTENSIONS_LIST="cert-manager contour external-dns" 
 #EXTENSIONS_LIST="cert-manager contour external-dns harbor"
 
-CLUSTER_FILES_DIR="build/${CLUSTER_ENV}/${NAMESPACE_NAME}"
+CLUSTER_FILES_DIR="build/${CLUSTER_ENV}/${NAMESPACE_NAME}/${CLUSTER_NAME}"
 
 create_cluster() {
   echo "Creating tkc file ${CLUSTER_NAME}.yaml in the ${CLUSTER_FILES_DIR} path"
@@ -89,10 +89,18 @@ create_cluster() {
   cp ${TEMPLATE_DIR}/${TKC_TEMPLATE_FILE_FINAL} ${CLUSTER_FILES_DIR}/${CLUSTER_NAME}.yaml
   sed -e "s/CLUSTER_NAME/${CLUSTER_NAME}/g" -i ${CLUSTER_FILES_DIR}/${CLUSTER_NAME}.yaml
   echo "Login to vsphere and Change context to the correct vsphere namespace"
+  if [ -e $HOME/.kube/config ]
+  then
+    mv $HOME/.kube/config $HOME/.kube/config.bak
+  fi
   kubectl vsphere login --vsphere-username ${VCENTER_USERNAME} --server=https://${VCENTER_IP} --insecure-skip-tls-verify --tanzu-kubernetes-cluster-namespace ${NAMESPACE_NAME}
   kubectl config use-context ${NAMESPACE_NAME}
   echo "Creating tkc cluster ${CLUSTER_NAME} in the vsphere namespace ${NAMESPACE_NAME}"
   kubectl apply -f ${CLUSTER_FILES_DIR}/${CLUSTER_NAME}.yaml
+  if [ -e $HOME/.kube/config.bak ]
+  then
+    mv $HOME/.kube/config.bak $HOME/.kube/config
+  fi
 }
 
 prepare_context() {
@@ -122,7 +130,12 @@ install_prereq() {
   IF_NS=$(kubectl get ns tkg-system --no-headers) &> /dev/null || true
   if [[ -z ${IF_NS} ]]
   then
-    kubectl apply -f ${EXTENSIONS_DIR}/extensions/kapp-controller.yaml
+    if [ -e ${CLUSTER_FILES_DIR}/kapp-controller.yaml ]
+    then
+      kubectl apply -f ${CLUSTER_FILES_DIR}/kapp-controller.yaml
+    else
+      kubectl apply -f ${EXTENSIONS_DIR}/extensions/kapp-controller.yaml
+    fi
   else
     echo "kapp-controller already installed"
   fi
@@ -186,7 +199,15 @@ fi
 
 if [ $INSTALL_EXTENSIONS -eq 1 ]
 then
+  if [ -e $HOME/.kube/config ]
+  then
+    mv $HOME/.kube/config $HOME/.kube/config.bak
+  fi
   prepare_context
   install_prereq
   install_extensions
+  if [ -e $HOME/.kube/config.bak ]
+  then
+    mv $HOME/.kube/config.bak $HOME/.kube/config
+  fi
 fi
