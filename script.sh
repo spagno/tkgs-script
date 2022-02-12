@@ -77,6 +77,7 @@ declare -A EXTENSIONS_MAP_DIR
 EXTENSIONS_MAP_NS=( ["contour"]="tanzu-system-ingress" ["external-dns"]="tanzu-system-service-discovery" ["fluent-bit"]="tanzu-system-logging" ["prometheus"]="tanzu-system-monitoring" ["grafana"]="tanzu-system-monitoring" )
 EXTENSIONS_MAP_DIR=( ["contour"]="ingress" ["external-dns"]="service-discovery" ["fluent-bit"]="logging" ["prometheus"]="monitoring" ["grafana"]="monitoring")
 EXTENSIONS_FINAL_LIST="${EXTENSIONS_LIST:-contour external-dns fluent-bit prometheus grafana}"
+CUSTOM_FINAL_YAML="${CUSTOM_YAML:-prom-proxy}"
 
 CLUSTER_FILES_DIR="build/${CLUSTER_ENV}/${NAMESPACE_NAME}/${CLUSTER_NAME}"
 
@@ -177,6 +178,16 @@ install_extensions() {
   done
 }
 
+install_custom(){
+  for extension in ${CUSTOM_FINAL_YAML}
+  do  
+    if [ -e "${CLUSTER_FILES_DIR}/${extension}.yaml" ]
+    then
+      kubectl apply -f "${CLUSTER_FILES_DIR}/${extension}.yaml"
+    fi
+  done
+}
+
 if [[ $CREATE_CLUSTER -eq 0 && $INSTALL_EXTENSIONS -eq 0 ]]
 then
   echo "Must specify --create-cluster or --install-extensions"
@@ -203,6 +214,7 @@ then
   prepare_context
   install_prereq
   install_extensions
+  install_custom
   if [ -e $HOME/.kube/config.bak ]
   then
     mv $HOME/.kube/config.bak $HOME/.kube/config
