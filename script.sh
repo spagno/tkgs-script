@@ -78,9 +78,6 @@ EXTENSIONS_MAP_NS=( ["contour"]="tanzu-system-ingress" ["external-dns"]="tanzu-s
 EXTENSIONS_MAP_DIR=( ["contour"]="ingress" ["external-dns"]="service-discovery" ["fluent-bit"]="logging" ["prometheus"]="monitoring" ["grafana"]="monitoring")
 EXTENSIONS_LIST="contour external-dns fluent-bit prometheus grafana"
 
-#EXTENSIONS_LIST="cert-manager contour external-dns" 
-#EXTENSIONS_LIST="cert-manager contour external-dns harbor"
-
 CLUSTER_FILES_DIR="build/${CLUSTER_ENV}/${NAMESPACE_NAME}/${CLUSTER_NAME}"
 
 create_cluster() {
