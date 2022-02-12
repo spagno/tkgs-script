@@ -119,7 +119,7 @@ install_prereq() {
   IF_NS=$(kubectl get ns cert-manager --no-headers) &> /dev/null || true
   if [[ -z $IF_NS ]]
   then
-    kubectl apply -f ${EXTENSIONS_DIR}/cert-manager
+    kubectl apply -f ${EXTENSIONS_DIR}/cert-manager-${CLUSTER_ENV}
   else
     echo "cert-manager already installed"
   fi
