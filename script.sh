@@ -10,7 +10,7 @@ usage() {
 
 TEMPLATE_DIR="templates"
 TKC_TEMPLATE_FILE_FINAL="${TKC_TEMPLATE_FILE:-tkc_v1alpha1.yaml}"
-EXTENSIONS_DIR="current"
+EXTENSIONS_DIR="extensions/current"
 
 options=$(getopt -l "help,vcenter-ip:,vcenter-username:,namespace:,env:,cluster-name:,create-cluster,install-extensions" -o "Chv:u:n:e:c:i" -a -- "$@")
 
